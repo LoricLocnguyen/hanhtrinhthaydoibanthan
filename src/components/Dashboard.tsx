@@ -1,7 +1,7 @@
 import { useApp } from '@/lib/AppContext';
-import { getQuoteOfDay, MOOD_EMOJIS, MOOD_LABELS, MILESTONES } from '@/lib/constants';
+import { getQuoteOfDay, MOOD_EMOJIS, MOOD_LABELS, MILESTONES, getCultivationLevel, getNextCultivationLevel } from '@/lib/constants';
 import { useState, useEffect } from 'react';
-import { Flame, Zap, Trophy, Quote, Star } from 'lucide-react';
+import { Flame, Zap, Trophy, Quote, Star, Sparkles } from 'lucide-react';
 
 function StreakCounter() {
   const { currentStreak, privacyMode } = useApp();
@@ -189,11 +189,35 @@ function ReasonReminder() {
   );
 }
 
+function CultivationBadge() {
+  const { currentStreak, privacyMode } = useApp();
+  const level = getCultivationLevel(currentStreak);
+  const nextLevel = getNextCultivationLevel(currentStreak);
+
+  return (
+    <div className="card-rewire animate-fade-in">
+      <div className="flex items-center gap-3">
+        <span className="text-3xl">{level.emoji}</span>
+        <div>
+          <div className={`font-bold ${level.color} ${level.glowClass}`}>{level.name}</div>
+          {nextLevel && (
+            <div className="text-xs text-muted-foreground">
+              Tiếp: {nextLevel.emoji} {nextLevel.name} • còn {privacyMode ? '•' : (nextLevel.minStreak - currentStreak)} ngày
+            </div>
+          )}
+        </div>
+        <Sparkles className="w-4 h-4 text-primary ml-auto" />
+      </div>
+    </div>
+  );
+}
+
 export default function Dashboard() {
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-bold">Tổng quan</h1>
       <StreakCounter />
+      <CultivationBadge />
       <StatsRow />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <RingProgress />
