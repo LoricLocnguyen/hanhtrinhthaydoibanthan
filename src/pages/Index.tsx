@@ -1,16 +1,45 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { AppProvider, useApp } from '@/lib/AppContext';
+import Sidebar from '@/components/Sidebar';
+import Dashboard from '@/components/Dashboard';
+import PomodoroTimer from '@/components/PomodoroTimer';
+import RecoveryCalendar from '@/components/RecoveryCalendar';
+import UrgeSurfing from '@/components/UrgeSurfing';
+import Journal from '@/components/Journal';
+import Stats from '@/components/Stats';
+import SettingsPage from '@/components/SettingsPage';
+import Onboarding from '@/components/Onboarding';
 
-// IMPORTANT: Fully REPLACE this with your own code
-const PlaceholderIndex = () => {
-  // PLACEHOLDER: Replace this entire return statement with the user's app.
-  // The inline background color is intentionally not part of the design system.
+function AppContent() {
+  const { profile, activeModule } = useApp();
+
+  if (!profile.onboardingDone) {
+    return <Onboarding />;
+  }
+
+  const modules = {
+    dashboard: <Dashboard />,
+    pomodoro: <PomodoroTimer />,
+    calendar: <RecoveryCalendar />,
+    urge: <UrgeSurfing />,
+    journal: <Journal />,
+    stats: <Stats />,
+    settings: <SettingsPage />,
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: '#fcfbf8' }}>
-      <img data-lovable-blank-page-placeholder="REMOVE_THIS" src="/placeholder.svg" alt="Your app will live here!" />
+    <div className="flex min-h-screen">
+      <Sidebar />
+      <main className="flex-1 ml-16 p-4 md:p-6 max-w-2xl mx-auto w-full">
+        {modules[activeModule]}
+      </main>
     </div>
   );
-};
+}
 
-const Index = PlaceholderIndex;
-
-export default Index;
+export default function Index() {
+  return (
+    <AppProvider>
+      <AppContent />
+    </AppProvider>
+  );
+}
