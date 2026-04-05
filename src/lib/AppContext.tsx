@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
 import { storage } from '@/lib/storage';
 
-export type Module = 'dashboard' | 'pomodoro' | 'calendar' | 'urge' | 'journal' | 'stats' | 'settings';
+export type Module = 'dashboard' | 'pomodoro' | 'calendar' | 'urge' | 'journal' | 'stats' | 'achievements' | 'settings';
 
 export interface UserProfile {
   name: string;
@@ -68,6 +68,9 @@ interface AppState {
   willpower: number;
   privacyMode: boolean;
   setPrivacyMode: (v: boolean) => void;
+  customTags: string[];
+  addCustomTag: (tag: string) => void;
+  removeCustomTag: (tag: string) => void;
 }
 
 const defaultProfile: UserProfile = {
@@ -88,6 +91,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [pomodoroSessions, setPomodoroSessions] = useState<PomodoroSession[]>(() => storage.get('pomodoroSessions', []));
   const [journalEntries, setJournalEntries] = useState<JournalEntry[]>(() => storage.get('journalEntries', []));
   const [urgeLogs, setUrgeLogs] = useState<UrgeLog[]>(() => storage.get('urgeLogs', []));
+  const [customTags, setCustomTags] = useState<string[]>(() => storage.get('customTags', []));
   const [privacyMode, setPrivacyMode] = useState(false);
 
   const setProfile = useCallback((p: UserProfile) => {
@@ -137,6 +141,23 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setUrgeLogs(prev => {
       const next = [...prev, u];
       storage.set('urgeLogs', next);
+      return next;
+    });
+  }, []);
+
+  const addCustomTag = useCallback((tag: string) => {
+    setCustomTags(prev => {
+      if (prev.includes(tag)) return prev;
+      const next = [...prev, tag];
+      storage.set('customTags', next);
+      return next;
+    });
+  }, []);
+
+  const removeCustomTag = useCallback((tag: string) => {
+    setCustomTags(prev => {
+      const next = prev.filter(t => t !== tag);
+      storage.set('customTags', next);
       return next;
     });
   }, []);
@@ -203,6 +224,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       urgeLogs, addUrgeLog,
       currentStreak, longestStreak, willpower,
       privacyMode, setPrivacyMode,
+      customTags, addCustomTag, removeCustomTag,
     }}>
       {children}
     </AppContext.Provider>

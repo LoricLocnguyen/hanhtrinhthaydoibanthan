@@ -1,7 +1,7 @@
 import { useApp, Module } from '@/lib/AppContext';
 import { 
   LayoutDashboard, Timer, CalendarDays, ShieldAlert, 
-  BookOpen, BarChart3, Settings, Brain
+  BookOpen, BarChart3, Settings, Brain, Trophy
 } from 'lucide-react';
 
 const NAV_ITEMS: { id: Module; icon: React.ElementType; label: string }[] = [
@@ -11,6 +11,7 @@ const NAV_ITEMS: { id: Module; icon: React.ElementType; label: string }[] = [
   { id: 'urge', icon: ShieldAlert, label: 'Khẩn cấp' },
   { id: 'journal', icon: BookOpen, label: 'Nhật ký' },
   { id: 'stats', icon: BarChart3, label: 'Thống kê' },
+  { id: 'achievements', icon: Trophy, label: 'Thành tựu' },
   { id: 'settings', icon: Settings, label: 'Cài đặt' },
 ];
 

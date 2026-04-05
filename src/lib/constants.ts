@@ -81,6 +81,70 @@ export const DISTRACTION_ACTIVITIES = [
   'Dọn dẹp phòng', 'Xem video hài', 'Học từ vựng mới', 'Chơi nhạc cụ',
 ];
 
-export const POMODORO_TAGS = ['Toán', 'Anh văn', 'Code', 'Đọc sách', 'Nghiên cứu', 'Viết', 'Khác'];
+export const DEFAULT_POMODORO_TAGS = ['Toán', 'Anh văn', 'Code', 'Đọc sách', 'Nghiên cứu', 'Viết', 'Khác'];
+export const POMODORO_TAGS = DEFAULT_POMODORO_TAGS;
 
 export const MILESTONES = [3, 7, 14, 21, 30, 60, 90, 180, 365];
+
+// Cultivation levels (Tu Tiên system)
+export interface CultivationLevel {
+  name: string;
+  emoji: string;
+  minStreak: number;
+  color: string; // tailwind class
+  glowClass: string;
+}
+
+export const CULTIVATION_LEVELS: CultivationLevel[] = [
+  { name: 'Phàm Nhân', emoji: '🧑', minStreak: 0, color: 'text-muted-foreground', glowClass: '' },
+  { name: 'Luyện Khí', emoji: '💨', minStreak: 7, color: 'text-primary', glowClass: 'glow-mint' },
+  { name: 'Trúc Cơ', emoji: '🏗️', minStreak: 14, color: 'text-primary', glowClass: 'glow-mint' },
+  { name: 'Kim Đan', emoji: '🔮', minStreak: 30, color: 'text-streak-gold', glowClass: 'glow-gold' },
+  { name: 'Nguyên Anh', emoji: '👶✨', minStreak: 60, color: 'text-secondary', glowClass: 'glow-lavender' },
+  { name: 'Hóa Thần', emoji: '🌟', minStreak: 90, color: 'text-secondary', glowClass: 'glow-lavender' },
+  { name: 'Luyện Hư', emoji: '🌌', minStreak: 180, color: 'text-streak-gold', glowClass: 'glow-gold' },
+  { name: 'Đại Thừa', emoji: '🐉', minStreak: 365, color: 'text-streak-gold', glowClass: 'glow-gold' },
+];
+
+export function getCultivationLevel(streak: number): CultivationLevel {
+  return [...CULTIVATION_LEVELS].reverse().find(l => streak >= l.minStreak) || CULTIVATION_LEVELS[0];
+}
+
+export function getNextCultivationLevel(streak: number): CultivationLevel | null {
+  const next = CULTIVATION_LEVELS.find(l => l.minStreak > streak);
+  return next || null;
+}
+
+// Achievement badges
+export interface Badge {
+  id: string;
+  name: string;
+  emoji: string;
+  description: string;
+  condition: (stats: BadgeStats) => boolean;
+}
+
+export interface BadgeStats {
+  currentStreak: number;
+  longestStreak: number;
+  totalPomodoros: number;
+  totalJournalEntries: number;
+  totalUrgesResisted: number;
+  totalDaysLogged: number;
+}
+
+export const BADGES: Badge[] = [
+  { id: 'first_step', name: 'Bước đầu tiên', emoji: '👣', description: 'Hoàn thành ngày đầu tiên', condition: s => s.currentStreak >= 1 },
+  { id: 'week_warrior', name: 'Chiến binh 7 ngày', emoji: '⚔️', description: 'Đạt streak 7 ngày', condition: s => s.longestStreak >= 7 },
+  { id: 'two_weeks', name: 'Kiên định', emoji: '🛡️', description: 'Đạt streak 14 ngày', condition: s => s.longestStreak >= 14 },
+  { id: 'monthly_master', name: 'Bậc thầy tháng', emoji: '👑', description: 'Đạt streak 30 ngày', condition: s => s.longestStreak >= 30 },
+  { id: 'two_months', name: 'Ý chí sắt đá', emoji: '⚡', description: 'Đạt streak 60 ngày', condition: s => s.longestStreak >= 60 },
+  { id: 'legendary', name: 'Huyền thoại', emoji: '🏆', description: 'Đạt streak 90 ngày', condition: s => s.longestStreak >= 90 },
+  { id: 'pomodoro_10', name: 'Tập trung cao', emoji: '🍅', description: 'Hoàn thành 10 pomodoro', condition: s => s.totalPomodoros >= 10 },
+  { id: 'pomodoro_50', name: 'Máy học bài', emoji: '🔥', description: 'Hoàn thành 50 pomodoro', condition: s => s.totalPomodoros >= 50 },
+  { id: 'pomodoro_100', name: 'Siêu nhân học', emoji: '💎', description: 'Hoàn thành 100 pomodoro', condition: s => s.totalPomodoros >= 100 },
+  { id: 'journal_5', name: 'Nhà văn', emoji: '✍️', description: 'Viết 5 nhật ký', condition: s => s.totalJournalEntries >= 5 },
+  { id: 'journal_20', name: 'Triết gia', emoji: '📖', description: 'Viết 20 nhật ký', condition: s => s.totalJournalEntries >= 20 },
+  { id: 'urge_5', name: 'Lướt sóng', emoji: '🏄', description: 'Vượt qua 5 cơn thôi thúc', condition: s => s.totalUrgesResisted >= 5 },
+  { id: 'urge_20', name: 'Bất khả chiến bại', emoji: '🧘', description: 'Vượt qua 20 cơn thôi thúc', condition: s => s.totalUrgesResisted >= 20 },
+];
