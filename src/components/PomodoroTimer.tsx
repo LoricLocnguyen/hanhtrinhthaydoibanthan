@@ -28,47 +28,11 @@ export default function PomodoroTimer() {
   const totalSeconds = phase === 'focus' ? focusMin * 60 : phase === 'break' ? breakMin * 60 : longBreakMin * 60;
   const progress = 1 - seconds / totalSeconds;
 
-  // Timer logic — use timestamp-based approach so background tabs work correctly
-  const endTimeRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    if (!running) {
-      endTimeRef.current = null;
-      return;
-    }
-    // Set the absolute end time when timer starts
-    if (!endTimeRef.current) {
-      endTimeRef.current = Date.now() + seconds * 1000;
-    }
-
-    const tick = () => {
-      const remaining = Math.round((endTimeRef.current! - Date.now()) / 1000);
-      if (remaining <= 0) {
-        setSeconds(0);
-        handlePhaseComplete();
-      } else {
-        setSeconds(remaining);
-      }
-    };
-
-    const interval = setInterval(tick, 500);
-    // Also tick on visibility change so it catches up immediately
-    const onVisible = () => { if (document.visibilityState === 'visible') tick(); };
-    document.addEventListener('visibilitychange', onVisible);
-
-    return () => {
-      clearInterval(interval);
-      document.removeEventListener('visibilitychange', onVisible);
-    };
-  }, [running, phase, handlePhaseComplete]);
-
   const handlePhaseComplete = useCallback(() => {
     setRunning(false);
-    // Notification
     if ('Notification' in window && Notification.permission === 'granted') {
       new Notification(phase === 'focus' ? '🍅 Pomodoro hoàn thành!' : '☕ Nghỉ xong rồi!');
     }
-
     if (phase === 'focus') {
       const newCount = completedCount + 1;
       setCompletedCount(newCount);
@@ -80,7 +44,6 @@ export default function PomodoroTimer() {
         duration: focusMin,
         timestamp: Date.now(),
       });
-      // Next phase
       if (newCount % 4 === 0) {
         setPhase('longBreak');
         setSeconds(longBreakMin * 60);
@@ -93,6 +56,35 @@ export default function PomodoroTimer() {
       setSeconds(focusMin * 60);
     }
   }, [phase, completedCount, task, tag, focusMin, breakMin, longBreakMin, today, addPomodoroSession]);
+
+  // Timer logic — use timestamp-based approach so background tabs work correctly
+  const endTimeRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (!running) {
+      endTimeRef.current = null;
+      return;
+    }
+    if (!endTimeRef.current) {
+      endTimeRef.current = Date.now() + seconds * 1000;
+    }
+    const tick = () => {
+      const remaining = Math.round((endTimeRef.current! - Date.now()) / 1000);
+      if (remaining <= 0) {
+        setSeconds(0);
+        handlePhaseComplete();
+      } else {
+        setSeconds(remaining);
+      }
+    };
+    const interval = setInterval(tick, 500);
+    const onVisible = () => { if (document.visibilityState === 'visible') tick(); };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', onVisible);
+    };
+  }, [running, phase, handlePhaseComplete]);
 
   const reset = () => {
     setRunning(false);
