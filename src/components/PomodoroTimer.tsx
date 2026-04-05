@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useApp } from '@/lib/AppContext';
-import { POMODORO_TAGS } from '@/lib/constants';
-import { Play, Pause, RotateCcw, Volume2, VolumeX, CheckCircle } from 'lucide-react';
+import { DEFAULT_POMODORO_TAGS } from '@/lib/constants';
+import { Play, Pause, RotateCcw, Volume2, VolumeX, CheckCircle, Plus, X } from 'lucide-react';
 
 type Phase = 'focus' | 'break' | 'longBreak';
 
 export default function PomodoroTimer() {
-  const { addPomodoroSession, pomodoroSessions, privacyMode } = useApp();
+  const { addPomodoroSession, pomodoroSessions, privacyMode, customTags, addCustomTag, removeCustomTag } = useApp();
+  const allTags = [...DEFAULT_POMODORO_TAGS, ...customTags];
   const today = new Date().toISOString().split('T')[0];
 
   const [focusMin, setFocusMin] = useState(25);
@@ -17,7 +18,9 @@ export default function PomodoroTimer() {
   const [running, setRunning] = useState(false);
   const [completedCount, setCompletedCount] = useState(0);
   const [task, setTask] = useState('');
-  const [tag, setTag] = useState(POMODORO_TAGS[0]);
+  const [tag, setTag] = useState(allTags[0]);
+  const [newTag, setNewTag] = useState('');
+  const [showAddTag, setShowAddTag] = useState(false);
   const [soundOn, setSoundOn] = useState(false);
   const audioCtxRef = useRef<AudioContext | null>(null);
   const noiseNodeRef = useRef<AudioBufferSourceNode | null>(null);
@@ -195,17 +198,31 @@ export default function PomodoroTimer() {
           className="w-full bg-muted rounded-lg px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:ring-1 focus:ring-primary"
         />
         <div className="flex flex-wrap gap-2">
-          {POMODORO_TAGS.map(t => (
+          {allTags.map(t => (
             <button
               key={t}
               onClick={() => setTag(t)}
-              className={`px-3 py-1 rounded-full text-xs transition-all ${
+              className={`px-3 py-1 rounded-full text-xs transition-all flex items-center gap-1 ${
                 tag === t ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:text-foreground'
               }`}
             >
               {t}
+              {customTags.includes(t) && (
+                <X className="w-3 h-3 opacity-60 hover:opacity-100" onClick={e => { e.stopPropagation(); removeCustomTag(t); if (tag === t) setTag(allTags[0]); }} />
+              )}
             </button>
           ))}
+          {showAddTag ? (
+            <form onSubmit={e => { e.preventDefault(); if (newTag.trim() && !allTags.includes(newTag.trim())) { addCustomTag(newTag.trim()); setTag(newTag.trim()); } setNewTag(''); setShowAddTag(false); }} className="flex items-center gap-1">
+              <input type="text" value={newTag} onChange={e => setNewTag(e.target.value)} placeholder="Nhãn mới..." autoFocus
+                className="w-20 px-2 py-1 rounded-full text-xs bg-muted text-foreground outline-none focus:ring-1 focus:ring-primary" />
+              <button type="submit" className="p-1 rounded-full bg-primary text-primary-foreground"><Plus className="w-3 h-3" /></button>
+            </form>
+          ) : (
+            <button onClick={() => setShowAddTag(true)} className="px-2 py-1 rounded-full text-xs bg-muted text-muted-foreground hover:text-foreground flex items-center gap-1">
+              <Plus className="w-3 h-3" /> Thêm
+            </button>
+          )}
         </div>
       </div>
 

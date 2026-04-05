@@ -6,6 +6,7 @@ import RecoveryCalendar from '@/components/RecoveryCalendar';
 import UrgeSurfing from '@/components/UrgeSurfing';
 import Journal from '@/components/Journal';
 import Stats from '@/components/Stats';
+import Achievements from '@/components/Achievements';
 import SettingsPage from '@/components/SettingsPage';
 import Onboarding from '@/components/Onboarding';
 
@@ -23,6 +24,7 @@ function AppContent() {
     urge: <UrgeSurfing />,
     journal: <Journal />,
     stats: <Stats />,
+    achievements: <Achievements />,
     settings: <SettingsPage />,
   };
 

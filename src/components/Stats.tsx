@@ -1,6 +1,6 @@
 import { useApp } from '@/lib/AppContext';
 import { MOOD_EMOJIS, RELAPSE_REASONS } from '@/lib/constants';
-import { BarChart3, TrendingUp, PieChart } from 'lucide-react';
+import { BarChart3, TrendingUp, PieChart, AlertTriangle } from 'lucide-react';
 import { useMemo } from 'react';
 
 export default function Stats() {
@@ -62,6 +62,17 @@ export default function Stats() {
     const avgMood = weekMoods.length ? (weekMoods.reduce((a, b) => a + b, 0) / weekMoods.length).toFixed(1) : '-';
     return { successDays, weekPomos, avgMood };
   }, [dayLogs, pomodoroSessions]);
+
+  // Trigger analysis from journal entries
+  const triggerAnalysis = useMemo(() => {
+    const counts: Record<string, number> = {};
+    journalEntries.forEach(e => {
+      e.triggers?.forEach(t => {
+        if (t.trim()) counts[t.trim()] = (counts[t.trim()] || 0) + 1;
+      });
+    });
+    return Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  }, [journalEntries]);
 
   return (
     <div className="space-y-4">
@@ -163,6 +174,32 @@ export default function Stats() {
               );
             })}
           </div>
+        </div>
+      )}
+
+      {/* Trigger Analysis */}
+      {triggerAnalysis.length > 0 && (
+        <div className="card-rewire">
+          <h3 className="text-sm font-medium text-muted-foreground mb-3 flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4" /> Triggers thường gặp
+          </h3>
+          <div className="space-y-2">
+            {triggerAnalysis.map(([trigger, count]) => {
+              const maxCount = triggerAnalysis[0][1];
+              return (
+                <div key={trigger}>
+                  <div className="flex justify-between text-xs mb-1">
+                    <span className="text-foreground">{trigger}</span>
+                    <span className="text-muted-foreground">{privacyMode ? '•' : count} lần</span>
+                  </div>
+                  <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                    <div className="h-full bg-secondary/70 rounded-full" style={{ width: `${(count / maxCount) * 100}%` }} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <p className="text-[10px] text-muted-foreground mt-2">Dựa trên triggers ghi nhận trong nhật ký</p>
         </div>
       )}
     </div>
