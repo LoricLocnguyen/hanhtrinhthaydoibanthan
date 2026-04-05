@@ -28,21 +28,39 @@ export default function PomodoroTimer() {
   const totalSeconds = phase === 'focus' ? focusMin * 60 : phase === 'break' ? breakMin * 60 : longBreakMin * 60;
   const progress = 1 - seconds / totalSeconds;
 
-  // Timer logic
+  // Timer logic — use timestamp-based approach so background tabs work correctly
+  const endTimeRef = useRef<number | null>(null);
+
   useEffect(() => {
-    if (!running) return;
-    const interval = setInterval(() => {
-      setSeconds(prev => {
-        if (prev <= 1) {
-          clearInterval(interval);
-          handlePhaseComplete();
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [running, phase]);
+    if (!running) {
+      endTimeRef.current = null;
+      return;
+    }
+    // Set the absolute end time when timer starts
+    if (!endTimeRef.current) {
+      endTimeRef.current = Date.now() + seconds * 1000;
+    }
+
+    const tick = () => {
+      const remaining = Math.round((endTimeRef.current! - Date.now()) / 1000);
+      if (remaining <= 0) {
+        setSeconds(0);
+        handlePhaseComplete();
+      } else {
+        setSeconds(remaining);
+      }
+    };
+
+    const interval = setInterval(tick, 500);
+    // Also tick on visibility change so it catches up immediately
+    const onVisible = () => { if (document.visibilityState === 'visible') tick(); };
+    document.addEventListener('visibilitychange', onVisible);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', onVisible);
+    };
+  }, [running, phase, handlePhaseComplete]);
 
   const handlePhaseComplete = useCallback(() => {
     setRunning(false);
