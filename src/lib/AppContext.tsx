@@ -171,6 +171,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const addTimeCapsule = useCallback((entry: TimeCapsuleEntry) => {
+    setTimeCapsules(prev => {
+      const next = [...prev, entry];
+      storage.set('timeCapsules', next);
+      return next;
+    });
+  }, []);
+
   // Calculate streaks
   const { currentStreak, longestStreak } = React.useMemo(() => {
     if (dayLogs.length === 0) {
