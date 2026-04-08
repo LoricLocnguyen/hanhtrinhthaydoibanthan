@@ -100,6 +100,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [journalEntries, setJournalEntries] = useState<JournalEntry[]>(() => storage.get('journalEntries', []));
   const [urgeLogs, setUrgeLogs] = useState<UrgeLog[]>(() => storage.get('urgeLogs', []));
   const [customTags, setCustomTags] = useState<string[]>(() => storage.get('customTags', []));
+  const [timeCapsules, setTimeCapsules] = useState<TimeCapsuleEntry[]>(() => storage.get('timeCapsules', []));
   const [privacyMode, setPrivacyMode] = useState(false);
 
   const setProfile = useCallback((p: UserProfile) => {
@@ -233,6 +234,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       currentStreak, longestStreak, willpower,
       privacyMode, setPrivacyMode,
       customTags, addCustomTag, removeCustomTag,
+      timeCapsules, addTimeCapsule,
     }}>
       {children}
     </AppContext.Provider>
