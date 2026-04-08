@@ -1,7 +1,13 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
 import { storage } from '@/lib/storage';
 
-export type Module = 'dashboard' | 'pomodoro' | 'calendar' | 'urge' | 'journal' | 'stats' | 'achievements' | 'settings';
+export type Module = 'dashboard' | 'pomodoro' | 'calendar' | 'urge' | 'journal' | 'stats' | 'achievements' | 'timecapsule' | 'settings';
+
+export interface TimeCapsuleEntry {
+  milestone: number;
+  content: string;
+  createdAt: number;
+}
 
 export interface UserProfile {
   name: string;
