@@ -77,6 +77,8 @@ interface AppState {
   customTags: string[];
   addCustomTag: (tag: string) => void;
   removeCustomTag: (tag: string) => void;
+  timeCapsules: TimeCapsuleEntry[];
+  addTimeCapsule: (entry: TimeCapsuleEntry) => void;
 }
 
 const defaultProfile: UserProfile = {
