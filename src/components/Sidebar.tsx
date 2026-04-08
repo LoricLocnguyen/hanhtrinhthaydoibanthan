@@ -1,8 +1,10 @@
 import { useApp, Module } from '@/lib/AppContext';
 import { 
   LayoutDashboard, Timer, CalendarDays, ShieldAlert, 
-  BookOpen, BarChart3, Settings, Brain, Trophy
+  BookOpen, BarChart3, Settings, Brain, Trophy, Mail
 } from 'lucide-react';
+import { getAvatarForStreak, AVATAR_CORRUPTED } from '@/lib/avatars';
+import { getCultivationLevel } from '@/lib/constants';
 
 const NAV_ITEMS: { id: Module; icon: React.ElementType; label: string }[] = [
   { id: 'dashboard', icon: LayoutDashboard, label: 'Tổng quan' },
@@ -12,11 +14,19 @@ const NAV_ITEMS: { id: Module; icon: React.ElementType; label: string }[] = [
   { id: 'journal', icon: BookOpen, label: 'Nhật ký' },
   { id: 'stats', icon: BarChart3, label: 'Thống kê' },
   { id: 'achievements', icon: Trophy, label: 'Thành tựu' },
+  { id: 'timecapsule', icon: Mail, label: 'Thư tương lai' },
   { id: 'settings', icon: Settings, label: 'Cài đặt' },
 ];
 
 export default function Sidebar() {
-  const { activeModule, setActiveModule, profile, privacyMode } = useApp();
+  const { activeModule, setActiveModule, profile, privacyMode, currentStreak, dayLogs } = useApp();
+
+  // Check relapse for avatar
+  const isCorrupted = dayLogs.length > 0 && (() => {
+    const sorted = [...dayLogs].sort((a, b) => b.date.localeCompare(a.date));
+    return sorted[0] && !sorted[0].success;
+  })();
+  const avatarSrc = isCorrupted ? AVATAR_CORRUPTED : getAvatarForStreak(currentStreak);
 
   return (
     <aside className="sidebar-nav fixed left-0 top-0 h-screen bg-sidebar border-r border-sidebar-border flex flex-col z-50 group">
@@ -51,7 +61,7 @@ export default function Sidebar() {
       {/* User */}
       <div className="px-3 py-4 border-t border-sidebar-border">
         <div className="flex items-center gap-3">
-          <span className="text-2xl shrink-0">{profile.avatar}</span>
+          <img src={avatarSrc} alt="Avatar" className="w-8 h-8 rounded-full object-cover shrink-0 border border-primary/30" width={32} height={32} />
           <span className="text-sm text-sidebar-foreground/80 truncate opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             {privacyMode ? '••••••' : profile.name || 'Người dùng'}
           </span>
