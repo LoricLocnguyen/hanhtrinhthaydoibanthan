@@ -1,7 +1,7 @@
 import { useApp, Module } from '@/lib/AppContext';
 import { 
   LayoutDashboard, Timer, CalendarDays, ShieldAlert, 
-  BookOpen, BarChart3, Settings, Brain, Trophy, Mail
+  BookOpen, BarChart3, Settings, Brain, Trophy, Mail, Users, Map
 } from 'lucide-react';
 import { getAvatarForStreak, AVATAR_CORRUPTED } from '@/lib/avatars';
 import { getCultivationLevel } from '@/lib/constants';
@@ -15,6 +15,8 @@ const NAV_ITEMS: { id: Module; icon: React.ElementType; label: string }[] = [
   { id: 'stats', icon: BarChart3, label: 'Thống kê' },
   { id: 'achievements', icon: Trophy, label: 'Thành tựu' },
   { id: 'timecapsule', icon: Mail, label: 'Thư tương lai' },
+  { id: 'squad', icon: Users, label: 'Đồng hành' },
+  { id: 'mindmap', icon: Map, label: 'Bản đồ tâm trí' },
   { id: 'settings', icon: Settings, label: 'Cài đặt' },
 ];
 
