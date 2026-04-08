@@ -8,6 +8,8 @@ import Journal from '@/components/Journal';
 import Stats from '@/components/Stats';
 import Achievements from '@/components/Achievements';
 import TimeCapsule from '@/components/TimeCapsule';
+import SquadMode from '@/components/SquadMode';
+import MindsetMap from '@/components/MindsetMap';
 import SettingsPage from '@/components/SettingsPage';
 import Onboarding from '@/components/Onboarding';
 
@@ -27,6 +29,8 @@ function AppContent() {
     stats: <Stats />,
     achievements: <Achievements />,
     timecapsule: <TimeCapsule />,
+    squad: <SquadMode />,
+    mindmap: <MindsetMap />,
     settings: <SettingsPage />,
   };
 
