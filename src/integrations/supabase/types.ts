@@ -14,7 +14,71 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      squad_members: {
+        Row: {
+          current_streak: number
+          device_id: string
+          id: string
+          is_relapsed: boolean
+          joined_at: string
+          last_check_in: string | null
+          name: string
+          squad_id: string
+          updated_at: string
+        }
+        Insert: {
+          current_streak?: number
+          device_id: string
+          id?: string
+          is_relapsed?: boolean
+          joined_at?: string
+          last_check_in?: string | null
+          name: string
+          squad_id: string
+          updated_at?: string
+        }
+        Update: {
+          current_streak?: number
+          device_id?: string
+          id?: string
+          is_relapsed?: boolean
+          joined_at?: string
+          last_check_in?: string | null
+          name?: string
+          squad_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "squad_members_squad_id_fkey"
+            columns: ["squad_id"]
+            isOneToOne: false
+            referencedRelation: "squads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      squads: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
