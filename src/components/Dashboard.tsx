@@ -1,6 +1,7 @@
 import { useApp } from '@/lib/AppContext';
 import { getQuoteOfDay, MOOD_EMOJIS, MOOD_LABELS, MILESTONES, getCultivationLevel, getNextCultivationLevel } from '@/lib/constants';
-import { useState, useEffect } from 'react';
+import { getAvatarForStreak, AVATAR_CORRUPTED } from '@/lib/avatars';
+import { useState, useMemo } from 'react';
 import { Flame, Zap, Trophy, Quote, Star, Sparkles } from 'lucide-react';
 
 function StreakCounter() {
@@ -190,17 +191,27 @@ function ReasonReminder() {
 }
 
 function CultivationBadge() {
-  const { currentStreak, privacyMode } = useApp();
+  const { currentStreak, privacyMode, dayLogs } = useApp();
   const level = getCultivationLevel(currentStreak);
   const nextLevel = getNextCultivationLevel(currentStreak);
+
+  const isCorrupted = useMemo(() => {
+    if (dayLogs.length === 0) return false;
+    const sorted = [...dayLogs].sort((a, b) => b.date.localeCompare(a.date));
+    return sorted[0] && !sorted[0].success;
+  }, [dayLogs]);
+
+  const avatarSrc = isCorrupted ? AVATAR_CORRUPTED : getAvatarForStreak(currentStreak);
 
   return (
     <div className="card-rewire animate-fade-in">
       <div className="flex items-center gap-3">
-        <span className="text-3xl">{level.emoji}</span>
+        <img src={avatarSrc} alt={level.name} className="w-12 h-12 rounded-full object-cover border border-primary/30" width={48} height={48} />
         <div>
-          <div className={`font-bold ${level.color} ${level.glowClass}`}>{level.name}</div>
-          {nextLevel && (
+          <div className={`font-bold ${isCorrupted ? 'text-destructive' : level.color} ${isCorrupted ? '' : level.glowClass}`}>
+            {isCorrupted ? '💀 Tẩu hỏa nhập ma' : `${level.emoji} ${level.name}`}
+          </div>
+          {!isCorrupted && nextLevel && (
             <div className="text-xs text-muted-foreground">
               Tiếp: {nextLevel.emoji} {nextLevel.name} • còn {privacyMode ? '•' : (nextLevel.minStreak - currentStreak)} ngày
             </div>

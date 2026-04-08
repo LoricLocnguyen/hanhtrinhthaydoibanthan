@@ -7,6 +7,7 @@ import UrgeSurfing from '@/components/UrgeSurfing';
 import Journal from '@/components/Journal';
 import Stats from '@/components/Stats';
 import Achievements from '@/components/Achievements';
+import TimeCapsule from '@/components/TimeCapsule';
 import SettingsPage from '@/components/SettingsPage';
 import Onboarding from '@/components/Onboarding';
 
@@ -25,6 +26,7 @@ function AppContent() {
     journal: <Journal />,
     stats: <Stats />,
     achievements: <Achievements />,
+    timecapsule: <TimeCapsule />,
     settings: <SettingsPage />,
   };
 

@@ -1,7 +1,13 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
 import { storage } from '@/lib/storage';
 
-export type Module = 'dashboard' | 'pomodoro' | 'calendar' | 'urge' | 'journal' | 'stats' | 'achievements' | 'settings';
+export type Module = 'dashboard' | 'pomodoro' | 'calendar' | 'urge' | 'journal' | 'stats' | 'achievements' | 'timecapsule' | 'settings';
+
+export interface TimeCapsuleEntry {
+  milestone: number;
+  content: string;
+  createdAt: number;
+}
 
 export interface UserProfile {
   name: string;
@@ -71,6 +77,8 @@ interface AppState {
   customTags: string[];
   addCustomTag: (tag: string) => void;
   removeCustomTag: (tag: string) => void;
+  timeCapsules: TimeCapsuleEntry[];
+  addTimeCapsule: (entry: TimeCapsuleEntry) => void;
 }
 
 const defaultProfile: UserProfile = {
@@ -92,6 +100,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [journalEntries, setJournalEntries] = useState<JournalEntry[]>(() => storage.get('journalEntries', []));
   const [urgeLogs, setUrgeLogs] = useState<UrgeLog[]>(() => storage.get('urgeLogs', []));
   const [customTags, setCustomTags] = useState<string[]>(() => storage.get('customTags', []));
+  const [timeCapsules, setTimeCapsules] = useState<TimeCapsuleEntry[]>(() => storage.get('timeCapsules', []));
   const [privacyMode, setPrivacyMode] = useState(false);
 
   const setProfile = useCallback((p: UserProfile) => {
@@ -162,6 +171,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const addTimeCapsule = useCallback((entry: TimeCapsuleEntry) => {
+    setTimeCapsules(prev => {
+      const next = [...prev, entry];
+      storage.set('timeCapsules', next);
+      return next;
+    });
+  }, []);
+
   // Calculate streaks
   const { currentStreak, longestStreak } = React.useMemo(() => {
     if (dayLogs.length === 0) {
@@ -225,6 +242,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       currentStreak, longestStreak, willpower,
       privacyMode, setPrivacyMode,
       customTags, addCustomTag, removeCustomTag,
+      timeCapsules, addTimeCapsule,
     }}>
       {children}
     </AppContext.Provider>
