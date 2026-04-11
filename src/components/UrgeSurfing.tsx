@@ -197,7 +197,7 @@ function ActionChecklist() {
         {items.map((item, i) => (
           <label key={i} className="flex items-center gap-2 text-sm cursor-pointer">
             <input type="checkbox" checked={checked[i]} onChange={() => {
-              const next = [...checked]; next[i] = !next[i]; setChecked(next);
+              const next = [...checked]; next[i] = !next[i]; updateChecked(next);
             }} className="accent-primary" />
             <span className={checked[i] ? 'line-through text-muted-foreground' : 'text-foreground'}>{item}</span>
           </label>
