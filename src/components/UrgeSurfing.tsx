@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useApp } from '@/lib/AppContext';
 import { DISTRACTION_ACTIVITIES } from '@/lib/constants';
+import { storage } from '@/lib/storage';
 import { ShieldAlert, Wind, Dices, Phone, PenLine } from 'lucide-react';
 
 function BreathingExercise() {
@@ -119,10 +120,12 @@ function UrgeTimer() {
 }
 
 function DistractionWheel() {
-  const [result, setResult] = useState('');
+  const [result, setResult] = useState(() => storage.get<string>('distractionResult', ''));
   const spin = () => {
     const idx = Math.floor(Math.random() * DISTRACTION_ACTIVITIES.length);
-    setResult(DISTRACTION_ACTIVITIES[idx]);
+    const activity = DISTRACTION_ACTIVITIES[idx];
+    setResult(activity);
+    storage.set('distractionResult', activity);
   };
 
   return (
@@ -180,7 +183,12 @@ function QuickJournal() {
 
 function ActionChecklist() {
   const items = ['Uống một ly nước', 'Đi ra ngoài 5 phút', 'Hít thở sâu 10 lần', 'Gọi điện cho ai đó', 'Rửa mặt bằng nước lạnh'];
-  const [checked, setChecked] = useState<boolean[]>(new Array(items.length).fill(false));
+  const [checked, setChecked] = useState<boolean[]>(() => storage.get('checklistState', new Array(items.length).fill(false)));
+
+  const updateChecked = (next: boolean[]) => {
+    setChecked(next);
+    storage.set('checklistState', next);
+  };
 
   return (
     <div className="card-rewire">
@@ -189,7 +197,7 @@ function ActionChecklist() {
         {items.map((item, i) => (
           <label key={i} className="flex items-center gap-2 text-sm cursor-pointer">
             <input type="checkbox" checked={checked[i]} onChange={() => {
-              const next = [...checked]; next[i] = !next[i]; setChecked(next);
+              const next = [...checked]; next[i] = !next[i]; updateChecked(next);
             }} className="accent-primary" />
             <span className={checked[i] ? 'line-through text-muted-foreground' : 'text-foreground'}>{item}</span>
           </label>
