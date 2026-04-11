@@ -120,10 +120,12 @@ function UrgeTimer() {
 }
 
 function DistractionWheel() {
-  const [result, setResult] = useState('');
+  const [result, setResult] = useState(() => storage.get<string>('distractionResult', ''));
   const spin = () => {
     const idx = Math.floor(Math.random() * DISTRACTION_ACTIVITIES.length);
-    setResult(DISTRACTION_ACTIVITIES[idx]);
+    const activity = DISTRACTION_ACTIVITIES[idx];
+    setResult(activity);
+    storage.set('distractionResult', activity);
   };
 
   return (
