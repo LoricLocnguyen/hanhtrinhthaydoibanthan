@@ -23,6 +23,7 @@ const NAV_ITEMS: { id: Module; icon: React.ElementType; label: string }[] = [
 
 export default function Sidebar() {
   const { activeModule, setActiveModule, profile, privacyMode, currentStreak, dayLogs } = useApp();
+  const { signOut } = useAuth();
 
   // Check relapse for avatar
   const isCorrupted = dayLogs.length > 0 && (() => {
