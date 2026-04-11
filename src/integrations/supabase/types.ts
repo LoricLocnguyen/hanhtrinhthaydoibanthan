@@ -14,6 +14,144 @@ export type Database = {
   }
   public: {
     Tables: {
+      day_logs: {
+        Row: {
+          created_at: string
+          date: string
+          id: string
+          mood: number | null
+          mood_note: string | null
+          relapse_note: string | null
+          relapse_reason: string | null
+          success: boolean
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          id?: string
+          mood?: number | null
+          mood_note?: string | null
+          relapse_note?: string | null
+          relapse_reason?: string | null
+          success?: boolean
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          id?: string
+          mood?: number | null
+          mood_note?: string | null
+          relapse_note?: string | null
+          relapse_reason?: string | null
+          success?: boolean
+          user_id?: string
+        }
+        Relationships: []
+      }
+      journal_entries: {
+        Row: {
+          content: string
+          created_at: string
+          date: string
+          id: string
+          mood: number
+          triggers: string[]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content?: string
+          created_at?: string
+          date: string
+          id?: string
+          mood?: number
+          triggers?: string[]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          date?: string
+          id?: string
+          mood?: number
+          triggers?: string[]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      pomodoro_sessions: {
+        Row: {
+          created_at: string
+          date: string
+          duration: number
+          id: string
+          tag: string
+          task: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          duration?: number
+          id?: string
+          tag?: string
+          task?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          duration?: number
+          id?: string
+          tag?: string
+          task?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar: string
+          created_at: string
+          id: string
+          name: string
+          onboarding_done: boolean
+          reason: string
+          start_date: string
+          target_days: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar?: string
+          created_at?: string
+          id?: string
+          name?: string
+          onboarding_done?: boolean
+          reason?: string
+          start_date?: string
+          target_days?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar?: string
+          created_at?: string
+          id?: string
+          name?: string
+          onboarding_done?: boolean
+          reason?: string
+          start_date?: string
+          target_days?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       squad_members: {
         Row: {
           current_streak: number
@@ -76,6 +214,60 @@ export type Database = {
           created_at?: string
           id?: string
           name?: string
+        }
+        Relationships: []
+      }
+      time_capsules: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          milestone: number
+          user_id: string
+        }
+        Insert: {
+          content?: string
+          created_at?: string
+          id?: string
+          milestone: number
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          milestone?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      urge_logs: {
+        Row: {
+          created_at: string
+          date: string
+          duration: number
+          id: string
+          intensity: number
+          journal_note: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          duration?: number
+          id?: string
+          intensity?: number
+          journal_note?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          duration?: number
+          id?: string
+          intensity?: number
+          journal_note?: string
+          user_id?: string
         }
         Relationships: []
       }

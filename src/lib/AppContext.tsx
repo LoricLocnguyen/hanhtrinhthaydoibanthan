@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
 import { storage } from '@/lib/storage';
+import { useAuth } from '@/hooks/useAuth';
+import * as sync from '@/lib/supabaseSync';
 
 export type Module = 'dashboard' | 'pomodoro' | 'calendar' | 'urge' | 'journal' | 'stats' | 'achievements' | 'timecapsule' | 'squad' | 'mindmap' | 'settings';
 
@@ -19,11 +21,11 @@ export interface UserProfile {
 }
 
 export interface DayLog {
-  date: string; // YYYY-MM-DD
+  date: string;
   success: boolean;
   relapseReason?: string;
   relapseNote?: string;
-  mood?: number; // 1-5
+  mood?: number;
   moodNote?: string;
 }
 
@@ -32,7 +34,7 @@ export interface PomodoroSession {
   date: string;
   task: string;
   tag: string;
-  duration: number; // minutes
+  duration: number;
   timestamp: number;
 }
 
@@ -49,7 +51,7 @@ export interface UrgeLog {
   id: string;
   date: string;
   intensity: number;
-  duration: number; // seconds survived
+  duration: number;
   journalNote: string;
   timestamp: number;
 }
@@ -79,6 +81,7 @@ interface AppState {
   removeCustomTag: (tag: string) => void;
   timeCapsules: TimeCapsuleEntry[];
   addTimeCapsule: (entry: TimeCapsuleEntry) => void;
+  dataLoading: boolean;
 }
 
 const defaultProfile: UserProfile = {
@@ -93,66 +96,81 @@ const defaultProfile: UserProfile = {
 const AppContext = createContext<AppState | null>(null);
 
 export function AppProvider({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
+  const userId = user?.id;
+
   const [activeModule, setActiveModule] = useState<Module>('dashboard');
-  const [profile, setProfileState] = useState<UserProfile>(() => storage.get('profile', defaultProfile));
-  const [dayLogs, setDayLogsState] = useState<DayLog[]>(() => storage.get('dayLogs', []));
-  const [pomodoroSessions, setPomodoroSessions] = useState<PomodoroSession[]>(() => storage.get('pomodoroSessions', []));
-  const [journalEntries, setJournalEntries] = useState<JournalEntry[]>(() => storage.get('journalEntries', []));
-  const [urgeLogs, setUrgeLogs] = useState<UrgeLog[]>(() => storage.get('urgeLogs', []));
+  const [profile, setProfileState] = useState<UserProfile>(defaultProfile);
+  const [dayLogs, setDayLogsState] = useState<DayLog[]>([]);
+  const [pomodoroSessions, setPomodoroSessions] = useState<PomodoroSession[]>([]);
+  const [journalEntries, setJournalEntries] = useState<JournalEntry[]>([]);
+  const [urgeLogs, setUrgeLogs] = useState<UrgeLog[]>([]);
   const [customTags, setCustomTags] = useState<string[]>(() => storage.get('customTags', []));
-  const [timeCapsules, setTimeCapsules] = useState<TimeCapsuleEntry[]>(() => storage.get('timeCapsules', []));
+  const [timeCapsules, setTimeCapsules] = useState<TimeCapsuleEntry[]>([]);
   const [privacyMode, setPrivacyMode] = useState(false);
+  const [dataLoading, setDataLoading] = useState(true);
+
+  // Load data from DB when user logs in
+  useEffect(() => {
+    if (!userId) {
+      setDataLoading(false);
+      return;
+    }
+    setDataLoading(true);
+    Promise.all([
+      sync.loadProfile(userId),
+      sync.loadDayLogs(userId),
+      sync.loadPomodoroSessions(userId),
+      sync.loadJournalEntries(userId),
+      sync.loadUrgeLogs(userId),
+      sync.loadTimeCapsules(userId),
+    ]).then(([prof, days, pomo, journal, urges, capsules]) => {
+      if (prof) setProfileState(prof);
+      setDayLogsState(days);
+      setPomodoroSessions(pomo);
+      setJournalEntries(journal);
+      setUrgeLogs(urges);
+      setTimeCapsules(capsules);
+      setDataLoading(false);
+    }).catch(() => setDataLoading(false));
+  }, [userId]);
 
   const setProfile = useCallback((p: UserProfile) => {
     setProfileState(p);
-    storage.set('profile', p);
-  }, []);
+    if (userId) sync.saveProfile(userId, p);
+  }, [userId]);
 
   const setDayLogs = useCallback((logs: DayLog[]) => {
     setDayLogsState(logs);
-    storage.set('dayLogs', logs);
   }, []);
 
   const addDayLog = useCallback((log: DayLog) => {
     setDayLogsState(prev => {
       const filtered = prev.filter(d => d.date !== log.date);
-      const next = [...filtered, log];
-      storage.set('dayLogs', next);
-      return next;
+      return [...filtered, log];
     });
-  }, []);
+    if (userId) sync.saveDayLog(userId, log);
+  }, [userId]);
 
   const addPomodoroSession = useCallback((s: PomodoroSession) => {
-    setPomodoroSessions(prev => {
-      const next = [...prev, s];
-      storage.set('pomodoroSessions', next);
-      return next;
-    });
-  }, []);
+    setPomodoroSessions(prev => [...prev, s]);
+    if (userId) sync.savePomodoroSession(userId, s);
+  }, [userId]);
 
   const addJournalEntry = useCallback((e: JournalEntry) => {
-    setJournalEntries(prev => {
-      const next = [...prev, e];
-      storage.set('journalEntries', next);
-      return next;
-    });
-  }, []);
+    setJournalEntries(prev => [...prev, e]);
+    if (userId) sync.saveJournalEntry(userId, e);
+  }, [userId]);
 
   const updateJournalEntry = useCallback((e: JournalEntry) => {
-    setJournalEntries(prev => {
-      const next = prev.map(j => j.id === e.id ? e : j);
-      storage.set('journalEntries', next);
-      return next;
-    });
-  }, []);
+    setJournalEntries(prev => prev.map(j => j.id === e.id ? e : j));
+    if (userId) sync.updateJournalEntryDb(userId, e);
+  }, [userId]);
 
   const addUrgeLog = useCallback((u: UrgeLog) => {
-    setUrgeLogs(prev => {
-      const next = [...prev, u];
-      storage.set('urgeLogs', next);
-      return next;
-    });
-  }, []);
+    setUrgeLogs(prev => [...prev, u]);
+    if (userId) sync.saveUrgeLog(userId, u);
+  }, [userId]);
 
   const addCustomTag = useCallback((tag: string) => {
     setCustomTags(prev => {
@@ -172,17 +190,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const addTimeCapsule = useCallback((entry: TimeCapsuleEntry) => {
-    setTimeCapsules(prev => {
-      const next = [...prev, entry];
-      storage.set('timeCapsules', next);
-      return next;
-    });
-  }, []);
+    setTimeCapsules(prev => [...prev, entry]);
+    if (userId) sync.saveTimeCapsule(userId, entry);
+  }, [userId]);
 
   // Calculate streaks
   const { currentStreak, longestStreak } = React.useMemo(() => {
     if (dayLogs.length === 0) {
-      // Count from start date
       const start = new Date(profile.startDate);
       const today = new Date();
       const diff = Math.floor((today.getTime() - start.getTime()) / 86400000);
@@ -192,8 +206,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const sorted = [...dayLogs].sort((a, b) => b.date.localeCompare(a.date));
     let current = 0;
     const today = new Date().toISOString().split('T')[0];
-
-    // Check from today backwards
     let checkDate = new Date(today);
     for (let i = 0; i < 1000; i++) {
       const dateStr = checkDate.toISOString().split('T')[0];
@@ -206,7 +218,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
       checkDate.setDate(checkDate.getDate() - 1);
     }
 
-    // Find longest
     let longest = 0, tempStreak = 0;
     const allSorted = [...dayLogs].sort((a, b) => a.date.localeCompare(b.date));
     for (const log of allSorted) {
@@ -243,6 +254,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       privacyMode, setPrivacyMode,
       customTags, addCustomTag, removeCustomTag,
       timeCapsules, addTimeCapsule,
+      dataLoading,
     }}>
       {children}
     </AppContext.Provider>
