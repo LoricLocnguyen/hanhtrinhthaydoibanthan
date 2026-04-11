@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useApp } from '@/lib/AppContext';
 import { DISTRACTION_ACTIVITIES } from '@/lib/constants';
+import { storage } from '@/lib/storage';
 import { ShieldAlert, Wind, Dices, Phone, PenLine } from 'lucide-react';
 
 function BreathingExercise() {
