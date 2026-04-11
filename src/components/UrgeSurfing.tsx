@@ -183,7 +183,12 @@ function QuickJournal() {
 
 function ActionChecklist() {
   const items = ['Uống một ly nước', 'Đi ra ngoài 5 phút', 'Hít thở sâu 10 lần', 'Gọi điện cho ai đó', 'Rửa mặt bằng nước lạnh'];
-  const [checked, setChecked] = useState<boolean[]>(new Array(items.length).fill(false));
+  const [checked, setChecked] = useState<boolean[]>(() => storage.get('checklistState', new Array(items.length).fill(false)));
+
+  const updateChecked = (next: boolean[]) => {
+    setChecked(next);
+    storage.set('checklistState', next);
+  };
 
   return (
     <div className="card-rewire">
