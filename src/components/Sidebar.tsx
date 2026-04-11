@@ -1,7 +1,8 @@
 import { useApp, Module } from '@/lib/AppContext';
+import { useAuth } from '@/hooks/useAuth';
 import { 
   LayoutDashboard, Timer, CalendarDays, ShieldAlert, 
-  BookOpen, BarChart3, Settings, Brain, Trophy, Mail, Users, Map
+  BookOpen, BarChart3, Settings, Brain, Trophy, Mail, Users, Map, LogOut
 } from 'lucide-react';
 import { getAvatarForStreak, AVATAR_CORRUPTED } from '@/lib/avatars';
 import { getCultivationLevel } from '@/lib/constants';
