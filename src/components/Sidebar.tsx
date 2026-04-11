@@ -63,13 +63,20 @@ export default function Sidebar() {
       </nav>
 
       {/* User */}
-      <div className="px-3 py-4 border-t border-sidebar-border">
+      <div className="px-3 py-4 border-t border-sidebar-border space-y-2">
         <div className="flex items-center gap-3">
           <img src={avatarSrc} alt="Avatar" className="w-8 h-8 rounded-full object-cover shrink-0 border border-primary/30" width={32} height={32} />
           <span className="text-sm text-sidebar-foreground/80 truncate opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             {privacyMode ? '••••••' : profile.name || 'Người dùng'}
           </span>
         </div>
+        <button
+          onClick={signOut}
+          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sidebar-foreground/50 hover:text-destructive hover:bg-destructive/10 transition-all w-full"
+        >
+          <LogOut className="w-4 h-4 shrink-0" />
+          <span className="text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300">Đăng xuất</span>
+        </button>
       </div>
     </aside>
   );
