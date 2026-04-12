@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { useApp } from '@/lib/AppContext';
 import { DEFAULT_POMODORO_TAGS } from '@/lib/constants';
 import { Play, Pause, RotateCcw, Volume2, VolumeX, CheckCircle, Plus, X } from 'lucide-react';
