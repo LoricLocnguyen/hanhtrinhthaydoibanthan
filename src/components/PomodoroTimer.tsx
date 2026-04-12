@@ -301,32 +301,55 @@ export default function PomodoroTimer() {
         );
       })()}
 
-      {/* Recent Sessions */}
-      {pomodoroSessions.length > 0 && (
-        <div className="card-rewire">
-          <h3 className="text-sm font-medium text-muted-foreground mb-2">Lịch sử Pomodoro</h3>
-          <div className="space-y-2 max-h-60 overflow-y-auto">
-            {[...pomodoroSessions].reverse().slice(0, 20).map((s, i, arr) => {
-              const showDate = i === 0 || arr[i - 1].date !== s.date;
-              return (
-                <div key={s.id}>
-                  {showDate && (
-                    <div className="text-[11px] text-muted-foreground/60 font-medium mt-2 mb-1 first:mt-0">
-                      {s.date === today ? 'Hôm nay' : s.date}
+      {/* History Chart by Day */}
+      {pomodoroSessions.length > 0 && (() => {
+        const COLORS = ['hsl(160,77%,67%)', 'hsl(263,86%,76%)', 'hsl(45,93%,58%)', 'hsl(200,80%,60%)', 'hsl(340,75%,65%)', 'hsl(30,90%,60%)', 'hsl(120,50%,55%)'];
+        const byDate: Record<string, Record<string, number>> = {};
+        pomodoroSessions.forEach(s => {
+          if (!byDate[s.date]) byDate[s.date] = {};
+          byDate[s.date][s.tag] = (byDate[s.date][s.tag] || 0) + s.duration;
+        });
+        const sortedDates = Object.keys(byDate).sort((a, b) => b.localeCompare(a)).slice(0, 7);
+        const allTags = [...new Set(pomodoroSessions.map(s => s.tag))];
+        return (
+          <div className="card-rewire">
+            <h3 className="text-sm font-medium text-muted-foreground mb-3">Lịch sử Pomodoro</h3>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+              {sortedDates.map(date => {
+                const tagData = Object.entries(byDate[date]).map(([name, value]) => ({ name, value }));
+                const total = tagData.reduce((s, d) => s + d.value, 0);
+                return (
+                  <div key={date} className="flex flex-col items-center">
+                    <div className="text-[11px] text-muted-foreground/70 mb-1">{date === today ? 'Hôm nay' : date}</div>
+                    <div className="relative w-20 h-20">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie data={tagData} dataKey="value" innerRadius={18} outerRadius={32} paddingAngle={2} strokeWidth={0}>
+                            {tagData.map((d, i) => <Cell key={i} fill={COLORS[allTags.indexOf(d.name) % COLORS.length]} />)}
+                          </Pie>
+                          <Tooltip formatter={(v: number) => `${v}m`} contentStyle={{ background: 'hsl(220,18%,14%)', border: 'none', borderRadius: '8px', fontSize: '11px', color: '#fff' }} />
+                        </PieChart>
+                      </ResponsiveContainer>
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <span className="text-[11px] font-bold text-foreground">{total}m</span>
+                      </div>
                     </div>
-                  )}
-                  <div className="flex items-center gap-2 text-xs">
-                    <CheckCircle className="w-3 h-3 text-primary shrink-0" />
-                    <span className="text-foreground">{s.task}</span>
-                    <span className="text-muted-foreground">{s.tag}</span>
-                    <span className="ml-auto text-muted-foreground font-mono">{s.duration}m</span>
                   </div>
+                );
+              })}
+            </div>
+            {/* Legend */}
+            <div className="flex flex-wrap gap-2 mt-3 justify-center">
+              {allTags.map((t, i) => (
+                <div key={t} className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                  <span className="w-2 h-2 rounded-full" style={{ background: COLORS[i % COLORS.length] }} />
+                  {t}
                 </div>
-              );
-            })}
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 }
