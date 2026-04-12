@@ -339,11 +339,11 @@ export default function PomodoroTimer() {
               })}
             </div>
             {/* Legend */}
-            <div className="flex flex-wrap gap-2 mt-3 justify-center">
+            <div className="flex flex-wrap gap-3 mt-4 justify-center border-t border-muted pt-3">
               {allTags.map((t, i) => (
-                <div key={t} className="flex items-center gap-1 text-[10px] text-muted-foreground">
-                  <span className="w-2 h-2 rounded-full" style={{ background: COLORS[i % COLORS.length] }} />
-                  {t}
+                <div key={t} className="flex items-center gap-1.5 text-xs">
+                  <span className="w-3 h-3 rounded-full shrink-0" style={{ background: COLORS[i % COLORS.length] }} />
+                  <span className="text-foreground font-medium">{t}</span>
                 </div>
               ))}
             </div>
