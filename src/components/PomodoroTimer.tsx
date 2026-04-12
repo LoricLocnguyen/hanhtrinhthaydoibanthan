@@ -260,19 +260,53 @@ export default function PomodoroTimer() {
         </div>
       </div>
 
+      {/* Today Summary */}
+      {(() => {
+        const todaySessions = pomodoroSessions.filter(s => s.date === today);
+        if (todaySessions.length === 0) return null;
+        const totalMin = todaySessions.reduce((sum, s) => sum + s.duration, 0);
+        const byTag: Record<string, number> = {};
+        todaySessions.forEach(s => { byTag[s.tag] = (byTag[s.tag] || 0) + s.duration; });
+        return (
+          <div className="card-rewire">
+            <h3 className="text-sm font-medium text-muted-foreground mb-2">Hôm nay đã tập trung</h3>
+            <div className="text-2xl font-bold text-primary mb-2">
+              {Math.floor(totalMin / 60) > 0 && `${Math.floor(totalMin / 60)}h `}{totalMin % 60}m
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {Object.entries(byTag).sort((a, b) => b[1] - a[1]).map(([t, mins]) => (
+                <span key={t} className="px-2 py-1 rounded-full text-xs bg-muted text-muted-foreground">
+                  {t}: {mins}m
+                </span>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
+
       {/* Recent Sessions */}
       {pomodoroSessions.length > 0 && (
         <div className="card-rewire">
-          <h3 className="text-sm font-medium text-muted-foreground mb-2">Phiên gần đây</h3>
-          <div className="space-y-2 max-h-40 overflow-y-auto">
-            {[...pomodoroSessions].reverse().slice(0, 5).map(s => (
-              <div key={s.id} className="flex items-center gap-2 text-xs">
-                <CheckCircle className="w-3 h-3 text-primary shrink-0" />
-                <span className="text-foreground">{s.task}</span>
-                <span className="text-muted-foreground">{s.tag}</span>
-                <span className="ml-auto text-muted-foreground font-mono">{s.duration}m</span>
-              </div>
-            ))}
+          <h3 className="text-sm font-medium text-muted-foreground mb-2">Lịch sử Pomodoro</h3>
+          <div className="space-y-2 max-h-60 overflow-y-auto">
+            {[...pomodoroSessions].reverse().slice(0, 20).map((s, i, arr) => {
+              const showDate = i === 0 || arr[i - 1].date !== s.date;
+              return (
+                <div key={s.id}>
+                  {showDate && (
+                    <div className="text-[11px] text-muted-foreground/60 font-medium mt-2 mb-1 first:mt-0">
+                      {s.date === today ? 'Hôm nay' : s.date}
+                    </div>
+                  )}
+                  <div className="flex items-center gap-2 text-xs">
+                    <CheckCircle className="w-3 h-3 text-primary shrink-0" />
+                    <span className="text-foreground">{s.task}</span>
+                    <span className="text-muted-foreground">{s.tag}</span>
+                    <span className="ml-auto text-muted-foreground font-mono">{s.duration}m</span>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
