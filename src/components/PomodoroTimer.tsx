@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { useApp } from '@/lib/AppContext';
 import { DEFAULT_POMODORO_TAGS } from '@/lib/constants';
 import { Play, Pause, RotateCcw, Volume2, VolumeX, CheckCircle, Plus, X } from 'lucide-react';
@@ -267,18 +268,34 @@ export default function PomodoroTimer() {
         const totalMin = todaySessions.reduce((sum, s) => sum + s.duration, 0);
         const byTag: Record<string, number> = {};
         todaySessions.forEach(s => { byTag[s.tag] = (byTag[s.tag] || 0) + s.duration; });
+        const COLORS = ['hsl(160,77%,67%)', 'hsl(263,86%,76%)', 'hsl(45,93%,58%)', 'hsl(200,80%,60%)', 'hsl(340,75%,65%)', 'hsl(30,90%,60%)', 'hsl(120,50%,55%)'];
+        const chartData = Object.entries(byTag).sort((a, b) => b[1] - a[1]).map(([name, value]) => ({ name, value }));
         return (
           <div className="card-rewire">
             <h3 className="text-sm font-medium text-muted-foreground mb-2">Hôm nay đã tập trung</h3>
-            <div className="text-2xl font-bold text-primary mb-2">
-              {Math.floor(totalMin / 60) > 0 && `${Math.floor(totalMin / 60)}h `}{totalMin % 60}m
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {Object.entries(byTag).sort((a, b) => b[1] - a[1]).map(([t, mins]) => (
-                <span key={t} className="px-2 py-1 rounded-full text-xs bg-muted text-muted-foreground">
-                  {t}: {mins}m
-                </span>
-              ))}
+            <div className="flex items-center gap-6">
+              <div className="relative w-36 h-36 shrink-0">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie data={chartData} dataKey="value" innerRadius={35} outerRadius={60} paddingAngle={3} strokeWidth={0}>
+                      {chartData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                    </Pie>
+                    <Tooltip formatter={(v: number) => `${v}m`} contentStyle={{ background: 'hsl(220,18%,14%)', border: 'none', borderRadius: '8px', fontSize: '12px', color: '#fff' }} />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                  <span className="text-lg font-bold text-primary">{Math.floor(totalMin / 60) > 0 ? `${Math.floor(totalMin / 60)}h${totalMin % 60 > 0 ? totalMin % 60 : ''}` : `${totalMin}m`}</span>
+                </div>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                {chartData.map((d, i) => (
+                  <div key={d.name} className="flex items-center gap-2 text-xs">
+                    <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: COLORS[i % COLORS.length] }} />
+                    <span className="text-foreground">{d.name}</span>
+                    <span className="text-muted-foreground">{d.value}m</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         );
