@@ -2,9 +2,11 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { useApp } from '@/lib/AppContext';
 import { DEFAULT_POMODORO_TAGS } from '@/lib/constants';
-import { Play, Pause, RotateCcw, Volume2, VolumeX, CheckCircle, Plus, X } from 'lucide-react';
+import { Play, Pause, RotateCcw, Volume2, VolumeX, CheckCircle, Plus, X, Dumbbell, Gamepad2 } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 
-type Phase = 'focus' | 'break' | 'longBreak';
+type Phase = 'focus' | 'break' | 'longBreak' | 'exercise' | 'play';
+const SPECIAL_EMAIL = 'pinkblack0905@gmail.com';
 
 export default function PomodoroTimer() {
   const { addPomodoroSession, pomodoroSessions, privacyMode, customTags, addCustomTag, removeCustomTag } = useApp();
