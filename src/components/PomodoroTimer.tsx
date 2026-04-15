@@ -164,10 +164,20 @@ export default function PomodoroTimer() {
     return `${m.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
   };
 
-  const phaseColors = {
+  const phaseColors: Record<Phase, string> = {
     focus: 'hsl(160, 77%, 67%)',
     break: 'hsl(263, 86%, 76%)',
     longBreak: 'hsl(45, 93%, 58%)',
+    exercise: 'hsl(20, 90%, 60%)',
+    play: 'hsl(280, 70%, 65%)',
+  };
+
+  const phaseLabelsVi: Record<Phase, string> = {
+    focus: 'Tập trung',
+    break: 'Nghỉ ngắn',
+    longBreak: 'Nghỉ dài',
+    exercise: '💪 Thể dục',
+    play: '🎮 Giờ chơi',
   };
 
   const todayCount = pomodoroSessions.filter(s => s.date === today).length;
@@ -180,7 +190,7 @@ export default function PomodoroTimer() {
 
       {running && (
         <div className="bg-primary/10 border border-primary/30 rounded-lg px-4 py-2 text-sm text-primary text-center animate-fade-in">
-          🧠 Đang trong vùng tập trung — Hãy duy trì!
+          {phase === 'exercise' ? '💪 Thời gian thể dục — Vận động nào!' : phase === 'play' ? '🎮 Giờ chơi — Thư giãn đi!' : '🧠 Đang trong vùng tập trung — Hãy duy trì!'}
         </div>
       )}
 
