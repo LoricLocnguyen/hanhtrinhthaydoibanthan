@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { useApp } from '@/lib/AppContext';
-import { DEFAULT_POMODORO_TAGS } from '@/lib/constants';
-import { Play, Pause, RotateCcw, Volume2, VolumeX, CheckCircle, Plus, X, Dumbbell, Gamepad2 } from 'lucide-react';
+import { DEFAULT_POMODORO_TAGS, BADGES, BadgeStats, getCultivationLevel, getNextCultivationLevel } from '@/lib/constants';
+import { Play, Pause, RotateCcw, Volume2, VolumeX, CheckCircle, Plus, X, Dumbbell, Gamepad2, Trophy, Sparkles } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
 type Phase = 'focus' | 'break' | 'longBreak' | 'exercise' | 'play';
@@ -387,6 +387,80 @@ export default function PomodoroTimer() {
                 </div>
               ))}
             </div>
+          </div>
+        );
+      })()}
+
+      {/* Pomodoro Achievements */}
+      {(() => {
+        const stats: BadgeStats = {
+          currentStreak,
+          longestStreak,
+          totalPomodoros: pomodoroSessions.length,
+          totalJournalEntries: 0,
+          totalUrgesResisted: 0,
+          totalDaysLogged: 0,
+        };
+        const pomoBadges = BADGES.filter(b => b.id.startsWith('pomodoro_'));
+        const earned = pomoBadges.filter(b => b.condition(stats));
+        const locked = pomoBadges.filter(b => !b.condition(stats));
+        const level = getCultivationLevel(currentStreak);
+        const nextLevel = getNextCultivationLevel(currentStreak);
+        const progress = nextLevel
+          ? ((currentStreak - level.minStreak) / (nextLevel.minStreak - level.minStreak)) * 100
+          : 100;
+
+        return (
+          <div className="card-rewire animate-fade-in">
+            <h3 className="text-sm font-medium text-muted-foreground mb-3 flex items-center gap-2">
+              <Sparkles className="w-4 h-4" /> Thành tựu tu luyện Pomodoro
+            </h3>
+
+            {/* Cultivation level */}
+            <div className="flex items-center gap-3 mb-4 p-3 rounded-lg bg-muted/30 border border-muted">
+              <div className={`text-3xl`}>{level.emoji}</div>
+              <div className="flex-1">
+                <div className={`text-sm font-bold ${level.color} ${level.glowClass}`}>{level.name}</div>
+                {nextLevel ? (
+                  <>
+                    <div className="text-[10px] text-muted-foreground">Tiếp: {nextLevel.emoji} {nextLevel.name} ({nextLevel.minStreak} ngày)</div>
+                    <div className="mt-1 h-1.5 bg-muted rounded-full overflow-hidden">
+                      <div className="h-full bg-gradient-to-r from-primary to-secondary rounded-full transition-all duration-1000" style={{ width: `${Math.min(100, progress)}%` }} />
+                    </div>
+                  </>
+                ) : (
+                  <div className="text-[10px] text-primary">🐉 Đã đạt cảnh giới tối cao!</div>
+                )}
+              </div>
+              <div className="text-right">
+                <div className="text-lg font-bold text-primary">{pomodoroSessions.length}</div>
+                <div className="text-[10px] text-muted-foreground">🍅 tổng</div>
+              </div>
+            </div>
+
+            {/* Earned badges */}
+            {earned.length > 0 && (
+              <div className="grid grid-cols-4 sm:grid-cols-5 gap-2 mb-3">
+                {earned.map(b => (
+                  <div key={b.id} className="flex flex-col items-center gap-1 p-2 rounded-lg bg-primary/10 border border-primary/20">
+                    <span className="text-2xl">{b.emoji}</span>
+                    <span className="text-[9px] text-center text-foreground/80 leading-tight">{b.name}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Locked badges */}
+            {locked.length > 0 && (
+              <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
+                {locked.map(b => (
+                  <div key={b.id} className="flex flex-col items-center gap-1 p-2 rounded-lg bg-muted/50 opacity-40">
+                    <span className="text-2xl grayscale">🔒</span>
+                    <span className="text-[9px] text-center text-muted-foreground leading-tight">{b.description}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         );
       })()}
