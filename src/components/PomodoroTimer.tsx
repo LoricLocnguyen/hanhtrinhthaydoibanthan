@@ -211,7 +211,7 @@ export default function PomodoroTimer() {
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
-              {phase === 'focus' ? 'Tập trung' : phase === 'break' ? 'Nghỉ ngắn' : 'Nghỉ dài'}
+              {phaseLabelsVi[phase]}
             </div>
             <div className="text-5xl font-mono font-bold" style={{ color: phaseColors[phase] }}>
               {privacyMode ? '••:••' : formatTime(seconds)}
