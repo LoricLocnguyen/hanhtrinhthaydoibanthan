@@ -10,6 +10,8 @@ const SPECIAL_EMAIL = 'pinkblack0905@gmail.com';
 
 export default function PomodoroTimer() {
   const { addPomodoroSession, pomodoroSessions, privacyMode, customTags, addCustomTag, removeCustomTag } = useApp();
+  const { user } = useAuth();
+  const isSpecialUser = user?.email === SPECIAL_EMAIL;
   const allTags = [...DEFAULT_POMODORO_TAGS, ...customTags];
   const today = new Date().toISOString().split('T')[0];
 
@@ -28,13 +30,30 @@ export default function PomodoroTimer() {
   const audioCtxRef = useRef<AudioContext | null>(null);
   const noiseNodeRef = useRef<AudioBufferSourceNode | null>(null);
 
-  const totalSeconds = phase === 'focus' ? focusMin * 60 : phase === 'break' ? breakMin * 60 : longBreakMin * 60;
+  const getPhaseSeconds = (p: Phase) => {
+    switch (p) {
+      case 'focus': return focusMin * 60;
+      case 'break': return breakMin * 60;
+      case 'longBreak': return longBreakMin * 60;
+      case 'exercise': return 10 * 60;
+      case 'play': return 5 * 60;
+    }
+  };
+
+  const totalSeconds = getPhaseSeconds(phase);
   const progress = 1 - seconds / totalSeconds;
 
   const handlePhaseComplete = useCallback(() => {
     setRunning(false);
+    const phaseLabels: Record<Phase, string> = {
+      focus: '🍅 Pomodoro hoàn thành!',
+      break: '☕ Nghỉ xong rồi!',
+      longBreak: '☕ Nghỉ dài xong rồi!',
+      exercise: '💪 Thể dục xong rồi!',
+      play: '🎮 Giờ chơi hết rồi!',
+    };
     if ('Notification' in window && Notification.permission === 'granted') {
-      new Notification(phase === 'focus' ? '🍅 Pomodoro hoàn thành!' : '☕ Nghỉ xong rồi!');
+      new Notification(phaseLabels[phase]);
     }
     if (phase === 'focus') {
       const newCount = completedCount + 1;
@@ -47,18 +66,27 @@ export default function PomodoroTimer() {
         duration: focusMin,
         timestamp: Date.now(),
       });
-      if (newCount % 4 === 0) {
+      if (isSpecialUser) {
+        // Special flow: focus → exercise → play → focus
+        setPhase('exercise');
+        setSeconds(10 * 60);
+        setRunning(true);
+      } else if (newCount % 4 === 0) {
         setPhase('longBreak');
         setSeconds(longBreakMin * 60);
       } else {
         setPhase('break');
         setSeconds(breakMin * 60);
       }
+    } else if (phase === 'exercise') {
+      setPhase('play');
+      setSeconds(5 * 60);
+      setRunning(true);
     } else {
       setPhase('focus');
       setSeconds(focusMin * 60);
     }
-  }, [phase, completedCount, task, tag, focusMin, breakMin, longBreakMin, today, addPomodoroSession]);
+  }, [phase, completedCount, task, tag, focusMin, breakMin, longBreakMin, today, addPomodoroSession, isSpecialUser]);
 
   // Timer logic — use timestamp-based approach so background tabs work correctly
   const endTimeRef = useRef<number | null>(null);
