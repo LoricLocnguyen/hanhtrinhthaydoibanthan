@@ -10,7 +10,7 @@ type Phase = 'focus' | 'break' | 'longBreak' | 'exercise' | 'play';
 const SPECIAL_EMAIL = 'pinkblack0905@gmail.com';
 
 export default function PomodoroTimer() {
-  const { addPomodoroSession, pomodoroSessions, privacyMode, customTags, addCustomTag, removeCustomTag, currentStreak, longestStreak } = useApp();
+  const { addPomodoroSession, pomodoroSessions, privacyMode, customTags, addCustomTag, removeCustomTag } = useApp();
   const { user } = useAuth();
   const isSpecialUser = user?.email === SPECIAL_EMAIL;
   const allTags = [...DEFAULT_POMODORO_TAGS, ...customTags];
