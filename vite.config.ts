@@ -6,6 +6,9 @@ import { VitePWA } from "vite-plugin-pwa";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
+  // THÊM DÒNG NÀY ĐỂ FIX LỖI TRẮNG TRANG TRÊN GITHUB PAGES
+  base: "/hanhtrinhthaydoibanthan/", 
+  
   server: {
     host: "::",
     port: 8080,
