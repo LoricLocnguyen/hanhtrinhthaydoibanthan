@@ -13,7 +13,8 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
+      {/* THÊM basename VÀO ĐÂY ĐỂ FIX LỖI 404 TRÊN GITHUB PAGES */}
+      <BrowserRouter basename="/hanhtrinhthaydoibanthan">
         <Routes>
           <Route path="/" element={<Index />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
